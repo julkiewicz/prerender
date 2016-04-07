@@ -1,0 +1,37 @@
+#!/bin/bash
+
+OPTS=`getopt --long prerender-service-url:,aws-region:,aws-access-key-id:,aws-secret-access-key:,s3-bucket-name: -- "$@"`
+
+if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
+
+while true ; do
+    opt=(${1//=/ })
+    key=${opt[0]}
+    value=${opt[1]}
+    shift_count=1
+    if [ -z "$value" ]
+    then
+        value=$2
+        shift_count=2
+    fi
+    case "$key" in
+        --prerender-service-url) export PRERENDER_SERVICE_URL=$value; shift $shift_count;;
+        --aws-region) export AWS_REGION=$value; shift $shift_count;;
+        --aws-access-key-id) export AWS_ACCESS_KEY_ID=$value; shift $shift_count;;
+        --aws-secret-access-key) export AWS_SECRET_ACCESS_KEY=$value; shift $shift_count;;
+        --s3-bucket-name) export S3_BUCKET_NAME=$value; shift $shift_count;;
+        *) shift; break;;
+    esac
+done
+
+echo "PRERENDER_SERVICE_URL=$PRERENDER_SERVICE_URL"
+echo "AWS_REGION=$AWS_REGION"
+echo "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID"
+echo "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY"
+echo "S3_BUCKET_NAME=$S3_BUCKET_NAME"
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd $DIR
+node server.js
+
